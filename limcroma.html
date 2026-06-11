@@ -299,9 +299,17 @@ input:focus,select:focus{outline:none;border-color:var(--bush3);background:#fff}
             <div class="fg"><label class="fl">Qty</label><input type="number" id="e-qty" value="1" min="1"></div>
             <div class="fg"><label class="fl">Notes</label><input type="text" id="e-notes" placeholder="optional"></div>
           </div>
-          <div class="afee" id="afee" style="display:none">
-            <span class="afee-l">Trophy fee</span>
-            <span class="afee-v" id="afee-v">$ 0.00</span>
+          <div id="afee" style="display:none;margin:9px 0">
+            <label class="fl" style="color:#3b6d11;margin-bottom:6px">&#128176; Trophy fee per animal (USD $)</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="position:relative;flex:1">
+                <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600;color:#3b6d11;font-size:16px;pointer-events:none">$</span>
+                <input type="number" id="e-price" min="0" step="0.01" placeholder="0.00"
+                  style="padding-left:28px;font-size:18px;font-weight:600;color:#1a3a0f;background:#eaf3de;border:2.5px solid #4a7c2f;border-radius:10px;box-shadow:0 0 0 5px rgba(74,124,47,0.2);width:100%">
+              </div>
+              <div id="afee-total" style="background:#1a3a0f;color:#e8b04a;font-family:Playfair Display,serif;font-size:17px;font-weight:600;padding:10px 14px;border-radius:10px;white-space:nowrap;min-width:90px;text-align:center"></div>
+            </div>
+            <div style="font-size:11px;color:#3b6d11;margin-top:5px" id="afee-hint"></div>
           </div>
           <button class="btn btn-p" onclick="saveEntry()">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -731,18 +739,57 @@ function saveClientRate(){
 }
 
 // ── ENTRY ──
-document.getElementById('e-sp').addEventListener('change',function(){
+function updatePriceBox(){
   var mysp=getMySpecies();
   var sp=mysp.find(function(s){return s.id==document.getElementById('e-sp').value});
   var qty=parseInt(document.getElementById('e-qty').value)||1;
   var box=document.getElementById('afee');
-  if(sp){box.style.display='flex';document.getElementById('afee-v').textContent=D(sp.price*qty)}
-  else box.style.display='none';
-});
+  if(sp){
+    box.style.display='block';
+    var priceInput=document.getElementById('e-price');
+    // Pre-fill saved price but let PH edit it
+    if(priceInput.dataset.spId!==sp.id){
+      priceInput.value=sp.price;
+      priceInput.dataset.spId=sp.id;
+      // Flash/pulse the input to draw attention
+      priceInput.style.transition='box-shadow .15s,background .15s';
+      priceInput.style.boxShadow='0 0 0 8px rgba(74,124,47,0.35)';
+      priceInput.style.background='#d4edbc';
+      setTimeout(function(){
+        priceInput.style.boxShadow='0 0 0 4px rgba(74,124,47,0.18)';
+        priceInput.style.background='#eaf3de';
+      },400);
+      priceInput.focus();
+      priceInput.select();
+    }
+    var price=parseFloat(priceInput.value)||0;
+    document.getElementById('afee-total').textContent=D(price*qty);
+    document.getElementById('afee-hint').textContent=sp.price!==price
+      ?'Default: '+D(sp.price)+' — you have changed this price for this entry'
+      :'Default price from your species list';
+  } else {
+    box.style.display='none';
+    var pi=document.getElementById('e-price');
+    pi.value='';pi.dataset.spId='';
+  }
+}
+document.getElementById('e-sp').addEventListener('change',updatePriceBox);
 document.getElementById('e-qty').addEventListener('input',function(){
+  var qty=parseInt(this.value)||1;
+  var price=parseFloat(document.getElementById('e-price').value)||0;
+  if(price)document.getElementById('afee-total').textContent=D(price*qty);
+});
+document.getElementById('e-price').addEventListener('input',function(){
+  var qty=parseInt(document.getElementById('e-qty').value)||1;
+  var price=parseFloat(this.value)||0;
+  document.getElementById('afee-total').textContent=D(price*qty);
   var mysp=getMySpecies();
   var sp=mysp.find(function(s){return s.id==document.getElementById('e-sp').value});
-  if(sp)document.getElementById('afee-v').textContent=D(sp.price*(parseInt(this.value)||1));
+  if(sp){
+    document.getElementById('afee-hint').textContent=sp.price!==price
+      ?'Default: '+D(sp.price)+' — you have changed this price for this entry'
+      :'Default price from your species list';
+  }
 });
 document.getElementById('e-date').addEventListener('change',renderToday);
 
@@ -758,12 +805,16 @@ function saveEntry(){
   var sp=mysp.find(function(s){return s.id==spId});
   var ph=phs.find(function(p){return p.id==phId});
   var cl=clients.find(function(c){return c.id==clId});
-  var entry={date:date,phId:phId,phName:ph.name,clientId:clId,clientName:cl.name,spId:spId,spName:sp.name,qty:qty,price:sp.price,total:sp.price*qty,notes:notes,savedAt:new Date().toISOString()};
+  var entryPrice=parseFloat(document.getElementById('e-price').value)||sp.price;
+  var entry={date:date,phId:phId,phName:ph.name,clientId:clId,clientName:cl.name,spId:spId,spName:sp.name,qty:qty,price:entryPrice,total:entryPrice*qty,notes:notes,savedAt:new Date().toISOString()};
   if(usingFB&&fbDB){fbDB.ref('entries').push(entry)}
   else{entry.id='e'+Date.now();entries.push(entry);saveLocal();renderToday();renderSummary()}
   document.getElementById('e-qty').value=1;
   document.getElementById('e-notes').value='';
   document.getElementById('e-sp').value='';
+  document.getElementById('e-price').value='';
+  document.getElementById('e-price').dataset.spId='';
+  document.getElementById('afee-total').textContent='';
   document.getElementById('afee').style.display='none';
   toast('Entry saved ✓');
 }
