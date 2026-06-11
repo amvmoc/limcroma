@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a3a0f">
+<title>Limcroma Game Farm</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bush:#1a3a0f;--bush2:#2d5a1b;--bush3:#4a7c2f;
+  --gold:#c8922a;--gold2:#e8b04a;
+  --cream:#f4f0e8;--cream2:#e8e0d0;
+  --text:#1c1c10;--text2:#4a4a38;--text3:#888870;
+  --white:#ffffff;--surf:#faf8f4;
+  --border:rgba(26,58,15,.13);--danger:#c0392b;
+  --r:12px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--cream);color:var(--text)}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:999;background:var(--bush);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+#splash.off{opacity:0;pointer-events:none}
+.spl-icon{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(232,176,74,.35);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.spl-icon svg{width:38px;height:38px;fill:var(--gold2)}
+.spl-h{font-family:'Playfair Display',serif;font-size:26px;color:#fff}
+.spl-s{font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
+.spinner{width:26px;height:26px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--gold2);border-radius:50%;animation:spin .75s linear infinite;margin-top:32px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;z-index:90;background:var(--bush);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+#login-screen.off{display:none}
+.login-box{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:16px}
+.login-logo svg{width:40px;height:40px;fill:var(--bush)}
+.login-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--bush);text-align:center;margin-bottom:3px}
+.login-sub{font-size:12px;color:var(--text3);text-align:center;letter-spacing:.07em;text-transform:uppercase;margin-bottom:22px}
+.login-fg{margin-bottom:13px}
+.login-fg label{display:block;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-weight:500}
+.login-fg input{width:100%;padding:11px 13px;font-size:15px;font-family:'DM Sans',sans-serif;border:1.5px solid #ccc;border-radius:8px;background:#fff;color:#1c1c10}
+.login-fg input::placeholder{color:#aaa}
+.login-fg input:focus{outline:none;border-color:var(--bush3);background:#fff}
+.btn-login{width:100%;padding:13px;background:var(--bush);border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:4px}
+.btn-login:active{opacity:.85}
+.login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:10px;min-height:20px}
+
+/* CHANGE PASSWORD MODAL */
+#chpw-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:24px}
+#chpw-modal.on{display:flex}
+.chpw-box{background:#fff;border-radius:16px;padding:26px 22px;width:100%;max-width:360px}
+.chpw-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--bush);margin-bottom:6px}
+.chpw-sub{font-size:13px;color:var(--text3);margin-bottom:18px;line-height:1.5}
+.chpw-fg{margin-bottom:12px}
+.chpw-fg label{display:block;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:500}
+.chpw-fg input{width:100%;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;border:1.5px solid #ccc;border-radius:8px;background:#fff;color:#1c1c10}
+.chpw-fg input:focus{outline:none;border-color:var(--bush3)}
+.chpw-err{color:var(--danger);font-size:13px;margin-top:8px;min-height:18px}
+
+/* APP */
+#app{display:flex;flex-direction:column;height:100vh;max-width:500px;margin:0 auto}
+.topbar{background:var(--bush);flex-shrink:0;padding-top:env(safe-area-inset-top,0)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 12px}
+.tb-title{font-family:'Playfair Display',serif;font-size:18px;color:#fff}
+.tb-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.07em;text-transform:uppercase;margin-top:2px}
+.sync{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold2);animation:pulse 2s infinite;margin-right:4px;vertical-align:middle}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-user{font-size:11px;color:rgba(255,255,255,.85);text-align:right;font-weight:500}
+.tb-role{font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:.05em}
+.logout-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:11px;padding:5px 11px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel{display:none;padding:14px 14px 28px}
+.panel.on{display:block}
+
+/* NAV */
+.bnav{background:var(--bush);display:flex;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 11px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.4);transition:color .15s}
+.nb svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nb.on{color:var(--gold2)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.ch{padding:13px 15px 0;font-size:13px;font-weight:500;color:var(--text2)}
+.cb{padding:13px 15px}
+
+/* HERO */
+.hero{background:var(--bush);border-radius:var(--r);padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:rgba(200,146,42,.07);border-radius:50%}
+.hero-lbl{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em}
+.hero-val{font-family:'Playfair Display',serif;font-size:34px;color:#fff;margin:3px 0 2px;line-height:1}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.5)}
+.hero-name{font-size:13px;color:var(--gold2);margin-bottom:6px;font-weight:500}
+
+/* TOTAL BOX */
+.total-box{background:var(--bush);border-radius:var(--r);padding:14px 16px;margin-bottom:12px}
+.total-box-title{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.total-row-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.total-row-item:last-child{border-bottom:none;padding-top:10px;margin-top:4px}
+.tri-label{font-size:13px;color:rgba(255,255,255,.7)}
+.tri-val{font-size:13px;color:#fff;font-weight:500}
+.tri-grand-label{font-size:14px;color:var(--gold2);font-weight:500}
+.tri-grand-val{font-family:'Playfair Display',serif;font-size:20px;color:var(--gold2)}
+
+/* METRICS */
+.met-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.met{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px}
+.met-l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.met-v{font-size:20px;font-weight:500;margin-top:4px}
+
+/* FORMS */
+.fg{margin-bottom:11px}
+label.fl{display:block;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+input,select,textarea{width:100%;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;border:1.5px solid #ccc;border-radius:8px;background:#fff;color:#1c1c10;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{outline:none;border-color:var(--bush3);background:#fff}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 18px;font-size:15px;font-family:'DM Sans',sans-serif;font-weight:500;border-radius:8px;border:none;cursor:pointer;width:100%;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97);opacity:.82}
+.btn-p{background:var(--bush);color:#fff}
+.btn-o{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-warn{background:#c0392b;color:#fff;margin-top:6px}
+.btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* LIST */
+.li{display:flex;align-items:center;gap:11px;padding:11px 15px;border-bottom:1px solid var(--border)}
+.li:last-child{border-bottom:none}
+.li-ic{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#eaf3de}
+.li-main{flex:1;min-width:0}
+.li-name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-det{font-size:12px;color:var(--text3);margin-top:1px}
+.li-r{text-align:right;flex-shrink:0}
+.li-amt{font-weight:500;font-size:14px;color:var(--bush2)}
+.li-dt{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* AUTO FEE */
+.afee{background:#eaf3de;border-radius:8px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;margin:9px 0}
+.afee-l{font-size:12px;color:#3b6d11}
+.afee-v{font-weight:500;color:#3b6d11;font-size:16px}
+
+.lock-note{font-size:11px;color:var(--text3);text-align:center;padding:8px 0 0}
+.lock-note b{color:var(--danger)}
+
+/* HUNTER ROWS */
+.hr-row{padding:13px 15px;border-bottom:1px solid var(--border)}
+.hr-row:last-child{border-bottom:none}
+.hr-name{font-weight:500;font-size:15px}
+.hr-ph{font-size:12px;color:var(--text3);margin-top:1px}
+.hr-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:9px}
+.hs{background:var(--surf);border-radius:8px;padding:7px 8px;text-align:center}
+.hs-v{font-size:15px;font-weight:500;color:var(--bush2)}
+.hs-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
+.hr-sp{font-size:12px;color:var(--text3);margin-top:7px;line-height:1.65}
+.hr-total{margin-top:8px;background:var(--bush);border-radius:8px;padding:8px 12px}
+.hr-total-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
+.hr-total-lbl{font-size:11px;color:rgba(255,255,255,.6)}
+.hr-total-val{font-size:13px;color:#fff;font-weight:500}
+.hr-grand-lbl{font-size:12px;color:var(--gold2);margin-top:4px;padding-top:6px;border-top:1px solid rgba(255,255,255,.15)}
+.hr-grand-val{font-family:'Playfair Display',serif;font-size:20px;color:var(--gold2)}
+
+/* SPECIES */
+.sp-sec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:9px 15px 5px;background:var(--cream)}
+.sp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;border-bottom:1px solid var(--border)}
+.sp-row:last-child{border-bottom:none}
+.sp-n{font-weight:500;font-size:14px}
+.sp-p{font-weight:500;color:var(--bush2);font-size:14px}
+.sp-del{width:26px;height:26px;background:#fceaea;border:none;cursor:pointer;border-radius:6px;color:var(--danger);font-size:17px;display:flex;align-items:center;justify-content:center}
+
+/* PH CARD */
+.ph-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:9px}
+.ph-card-name{font-weight:500;font-size:15px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ph-card-det{font-size:12px;color:var(--text3);margin-top:3px}
+.ph-card-creds{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}
+.ph-cred-badge{font-size:12px;color:var(--bush2);font-family:monospace;background:#eaf3de;padding:3px 9px;border-radius:4px}
+.ph-edit-btn{font-size:11px;padding:4px 10px;background:var(--bush);color:#fff;border:none;border-radius:5px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* CLIENT CARD */
+.cl-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.cl-card-name{font-weight:500;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.cl-card-det{font-size:12px;color:var(--text3);margin-top:3px}
+.cl-card-pkg{font-size:12px;color:var(--bush2);margin-top:4px}
+
+/* EDIT USER MODAL */
+#edit-user-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:24px}
+#edit-user-modal.on{display:flex}
+.edit-user-box{background:#fff;border-radius:16px;padding:24px 20px;width:100%;max-width:360px}
+.edit-user-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--bush);margin-bottom:16px}
+.eu-fg{margin-bottom:11px}
+.eu-fg label{display:block;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:500}
+.eu-fg input{width:100%;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;border:1.5px solid #ccc;border-radius:8px;background:#fff;color:#1c1c10}
+.eu-fg input:focus{outline:none;border-color:var(--bush3)}
+.eu-actions{display:flex;gap:9px;margin-top:14px}
+.eu-save{flex:1;padding:11px;background:var(--bush);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.eu-cancel{flex:1;padding:11px;background:var(--cream);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:14px}
+#toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:#fff;padding:9px 20px;border-radius:999px;font-size:13px;opacity:0;transition:all .28s;pointer-events:none;z-index:999;white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.sect-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.tab-filter{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.tf{padding:6px 14px;border-radius:999px;border:1.5px solid var(--border);background:var(--white);font-size:12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;color:var(--text2)}
+.tf.on{background:var(--bush);color:#fff;border-color:var(--bush)}
+.info-box{background:#eaf3de;border-radius:8px;padding:10px 13px;font-size:12px;color:#3b6d11;margin-bottom:11px;line-height:1.6}
+.admin-pw-section{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.admin-pw-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="spl-icon"><svg viewBox="0 0 24 24"><path d="M12 2C9.2 2 7 4.2 7 7c0 1.6.7 3 1.8 4L5 22h14l-3.8-11C16.3 10 17 8.6 17 7c0-2.8-2.2-5-5-5zm0 2c1.7 0 3 1.3 3 3S13.7 10 12 10 9 8.7 9 7s1.3-3 3-3z"/></svg></div>
+  <div class="spl-h">Limcroma</div>
+  <div class="spl-s">Game Farm · Hunting Tracker</div>
+  <div class="spinner"></div>
+</div>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><svg viewBox="0 0 24 24"><path d="M12 2C9.2 2 7 4.2 7 7c0 1.6.7 3 1.8 4L5 22h14l-3.8-11C16.3 10 17 8.6 17 7c0-2.8-2.2-5-5-5zm0 2c1.7 0 3 1.3 3 3S13.7 10 12 10 9 8.7 9 7s1.3-3 3-3z"/></svg></div>
+    <div class="login-title">Limcroma</div>
+    <div class="login-sub">Game Farm Tracker</div>
+    <div class="login-fg"><label>Username</label><input type="text" id="l-user" placeholder="Enter username" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
+    <div class="login-fg"><label>Password</label><input type="password" id="l-pass" placeholder="Enter password"></div>
+    <button class="btn-login" onclick="doLogin()">Sign in</button>
+    <div class="login-err" id="l-err"></div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL (forced on first admin login) -->
+<div id="chpw-modal">
+  <div class="chpw-box">
+    <div class="chpw-title">Set new admin password</div>
+    <div class="chpw-sub">You're using the default password. Please set a new one before continuing.</div>
+    <div class="chpw-fg"><label>New password</label><input type="password" id="chpw-new" placeholder="New password"></div>
+    <div class="chpw-fg"><label>Confirm password</label><input type="password" id="chpw-conf" placeholder="Confirm password"></div>
+    <div class="chpw-err" id="chpw-err"></div>
+    <button class="btn btn-p" style="margin-top:12px" onclick="saveNewAdminPw()">Save new password</button>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div id="edit-user-modal">
+  <div class="edit-user-box">
+    <div class="edit-user-title" id="edit-user-title">Edit user</div>
+    <div class="eu-fg"><label>Full name</label><input type="text" id="eu-name"></div>
+    <div class="eu-fg"><label>Username</label><input type="text" id="eu-un" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
+    <div class="eu-fg"><label>Password</label><input type="text" id="eu-pw"></div>
+    <div class="eu-fg"><label>Contact</label><input type="text" id="eu-contact"></div>
+    <div id="eu-err" style="color:var(--danger);font-size:13px;min-height:18px"></div>
+    <div class="eu-actions">
+      <button class="eu-cancel" onclick="closeEditUser()">Cancel</button>
+      <button class="eu-save" onclick="saveEditUser()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="tb-title">Limcroma</div>
+        <div class="tb-sub"><span class="sync"></span>Game Farm</div>
+      </div>
+      <div class="tb-right">
+        <div>
+          <div class="tb-user" id="tb-username"></div>
+          <div class="tb-role" id="tb-role"></div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll">
+
+    <!-- DAILY ENTRY -->
+    <div id="p-daily" class="panel on">
+      <div class="hero">
+        <div class="hero-name" id="hero-name"></div>
+        <div class="hero-lbl">Today's bag</div>
+        <div class="hero-val" id="t-count">0</div>
+        <div class="hero-sub" id="t-fees">$ 0.00 in trophy fees</div>
+      </div>
+      <div class="card">
+        <div class="ch">Record an animal shot</div>
+        <div class="cb">
+          <div class="fg"><label class="fl">Date</label><input type="date" id="e-date"></div>
+          <div class="fr2">
+            <div class="fg"><label class="fl">PH</label><select id="e-ph"><option value="">— PH —</option></select></div>
+            <div class="fg"><label class="fl">Client</label><select id="e-cl"><option value="">— Client —</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">Species</label><select id="e-sp"><option value="">— Species —</option></select></div>
+          <div class="fr2">
+            <div class="fg"><label class="fl">Qty</label><input type="number" id="e-qty" value="1" min="1"></div>
+            <div class="fg"><label class="fl">Notes</label><input type="text" id="e-notes" placeholder="optional"></div>
+          </div>
+          <div class="afee" id="afee" style="display:none">
+            <span class="afee-l">Trophy fee</span>
+            <span class="afee-v" id="afee-v">$ 0.00</span>
+          </div>
+          <button class="btn btn-p" onclick="saveEntry()">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Save entry
+          </button>
+          <p class="lock-note">⚠ <b>Entries cannot be deleted</b> once saved</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cb" style="padding-bottom:0"><div class="sect-head"><span style="font-size:13px;font-weight:500;color:var(--text2)">Today's entries</span></div></div>
+        <div id="t-list"><div class="empty">No entries yet today</div></div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div id="p-summary" class="panel">
+      <div class="met-row">
+        <div class="met"><div class="met-l">Total animals</div><div class="met-v" id="s-ani">0</div></div>
+        <div class="met"><div class="met-l">Total trophy fees</div><div class="met-v" id="s-fee" style="font-size:15px">$ 0</div></div>
+        <div class="met"><div class="met-l">Total daily fees</div><div class="met-v" id="s-daily" style="font-size:15px">$ 0</div></div>
+        <div class="met"><div class="met-l">Grand total</div><div class="met-v" id="s-grand" style="font-size:15px;color:var(--bush2)">$ 0</div></div>
+      </div>
+      <div class="tab-filter" id="ph-filter-tabs"></div>
+      <div class="card">
+        <div class="ch" style="padding-bottom:10px">Hunter totals — what each client owes</div>
+        <div id="hun-sum"><div class="empty">No entries yet</div></div>
+      </div>
+    </div>
+
+    <!-- SPECIES (PH manages their own prices) -->
+    <div id="p-species" class="panel">
+      <div class="info-box">
+        💡 Add the species and your <strong>USD prices ($)</strong> that your clients will hunt. You can also set your client's daily rate and days staying below.
+      </div>
+      <div class="card">
+        <div class="ch">Add species & price (USD $)</div>
+        <div class="cb">
+          <div class="fg"><label class="fl">Species name</label><input type="text" id="sp-n" placeholder="e.g. Kudu"></div>
+          <div class="fr2">
+            <div class="fg"><label class="fl">Price (USD $)</label><input type="number" id="sp-p" placeholder="0"></div>
+            <div class="fg"><label class="fl">Category</label>
+              <select id="sp-c"><option>Antelope</option><option>Big game</option><option>Predator</option><option>Bird</option><option>Other</option></select>
+            </div>
+          </div>
+          <button class="btn btn-p" onclick="addSpecies()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add species
+          </button>
+        </div>
+      </div>
+      <div class="card"><div id="sp-list"><div class="empty">No species yet</div></div></div>
+
+      <!-- PH: set days & rate per client -->
+      <div class="card" id="ph-client-rates-card">
+        <div class="ch">Set client days &amp; daily rate (USD $)</div>
+        <div class="cb">
+          <div class="fg"><label class="fl">Client</label><select id="rate-cl"><option value="">— Select client —</option></select></div>
+          <div class="fr2">
+            <div class="fg"><label class="fl">Days staying</label><input type="number" id="rate-days" placeholder="7" min="1"></div>
+            <div class="fg"><label class="fl">Rate per day ($)</label><input type="number" id="rate-rate" placeholder="350"></div>
+          </div>
+          <div class="afee" id="rate-preview" style="display:none">
+            <span class="afee-l">Daily total</span>
+            <span class="afee-v" id="rate-preview-v">$ 0.00</span>
+          </div>
+          <button class="btn btn-o" onclick="saveClientRate()">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Save daily rate
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="p-admin" class="panel">
+
+      <!-- Admin password change -->
+      <div class="admin-pw-section">
+        <div class="admin-pw-title">🔐 Admin password</div>
+        <div class="fr2" style="margin-bottom:9px">
+          <div class="fg" style="margin:0"><label class="fl">New password</label><input type="text" id="adm-newpw" placeholder="New password" autocomplete="off"></div>
+          <div class="fg" style="margin:0"><label class="fl">Confirm</label><input type="text" id="adm-confpw" placeholder="Confirm" autocomplete="off"></div>
+        </div>
+        <button class="btn btn-o" style="font-size:13px;padding:9px" onclick="changeAdminPw()">Change admin password</button>
+      </div>
+
+      <div class="card">
+        <div class="ch">Add Professional Hunter</div>
+        <div class="cb">
+          <div class="fg"><label class="fl">Full name</label><input type="text" id="ph-n" placeholder="Johan Steyn"></div>
+          <div class="fr2">
+            <div class="fg"><label class="fl">Username</label><input type="text" id="ph-un" placeholder="johan" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
+            <div class="fg"><label class="fl">Password</label><input type="text" id="ph-pw" placeholder="e.g. lion123"></div>
+          </div>
+          <div class="fg"><label class="fl">Contact</label><input type="text" id="ph-c" placeholder="+27..."></div>
+          <button class="btn btn-p" onclick="addPH()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add PH
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch" style="padding-bottom:10px">Professional hunters</div>
+        <div id="ph-list"><div class="empty">No PHs yet</div></div>
+      </div>
+      <div class="card">
+        <div class="ch">Add Client / Hunter</div>
+        <div class="cb">
+          <div class="fg"><label class="fl">Client name</label><input type="text" id="cl-n" placeholder="Derek van Wyk"></div>
+          <div class="fr2">
+            <div class="fg"><label class="fl">Assigned PH</label><select id="cl-ph"><option value="">Select PH</option></select></div>
+            <div class="fg"><label class="fl">Country</label><input type="text" id="cl-co" placeholder="USA"></div>
+          </div>
+          <div class="fr2">
+            <div class="fg"><label class="fl">Days staying</label><input type="number" id="cl-days" placeholder="7" min="1"></div>
+            <div class="fg"><label class="fl">Rate per day ($)</label><input type="number" id="cl-rate" placeholder="350"></div>
+          </div>
+          <button class="btn btn-o" onclick="addClient()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add client
+          </button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch" style="padding-bottom:10px">Clients</div>
+        <div id="cl-list"><div class="empty">No clients yet</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bnav">
+    <button class="nb on" onclick="nav('daily',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Daily
+    </button>
+    <button class="nb" onclick="nav('summary',this)">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Summary
+    </button>
+    <button class="nb" onclick="nav('species',this)">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Prices
+    </button>
+    <button class="nb admin-only" onclick="nav('admin',this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Admin
+    </button>
+  </nav>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var FB_CFG={
+  apiKey:"AIzaSyDN3-BXYkMAsluItnXIKGJlO1_7eCpTUng",
+  authDomain:"limcroma-2b0b7.firebaseapp.com",
+  databaseURL:"https://limcroma-2b0b7-default-rtdb.firebaseio.com",
+  projectId:"limcroma-2b0b7",
+  storageBucket:"limcroma-2b0b7.appspot.com",
+  appId:"1:229895642768:web:ca581013d760c99db98215"
+};
+
+// Default admin credentials — will be replaced once changed
+var DEFAULT_ADMIN_PW = "Limcroma2024";
+var ADMIN_USERNAME = "admin";
+
+var currentUser=null;
+var species=[], phs=[], clients=[], entries=[];
+var fbDB=null, usingFB=false;
+var filterPhId='all';
+var editingPhId=null;
+
+var LS={
+  get:function(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}},
+  set:function(k,v){localStorage.setItem(k,JSON.stringify(v))}
+};
+
+function getAdminPw(){
+  return LS.get('lcr_admin_pw')||DEFAULT_ADMIN_PW;
+}
+function isDefaultAdminPw(){
+  return !LS.get('lcr_admin_pw');
+}
+
+function D(n){return'$ '+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function today(){return new Date().toISOString().slice(0,10)}
+
+// ── LOGIN ──
+function doLogin(){
+  var u=document.getElementById('l-user').value.trim().toLowerCase();
+  var p=document.getElementById('l-pass').value.trim();
+  var err=document.getElementById('l-err');
+  err.textContent='';
+  if(!u||!p){err.textContent='Please enter username and password';return}
+  if(u===ADMIN_USERNAME.toLowerCase()&&p===getAdminPw()){
+    currentUser={name:'Admin',role:'admin',phId:null};
+    if(isDefaultAdminPw()){
+      // Force password change before entering app
+      document.getElementById('chpw-modal').classList.add('on');
+      return;
+    }
+    startApp();return;
+  }
+  var ph=phs.find(function(x){
+    return x.username&&x.username.toString().toLowerCase()===u&&x.password&&x.password.toString()===p
+  });
+  if(ph){currentUser={name:ph.name,role:'ph',phId:ph.id};startApp();return}
+  if(usingFB&&phs.length===0){err.textContent='Still loading — please try again';return}
+  err.textContent='Incorrect username or password';
+}
+
+function saveNewAdminPw(){
+  var np=document.getElementById('chpw-new').value.trim();
+  var cp=document.getElementById('chpw-conf').value.trim();
+  var err=document.getElementById('chpw-err');
+  err.textContent='';
+  if(!np){err.textContent='Enter a new password';return}
+  if(np.length<6){err.textContent='Password must be at least 6 characters';return}
+  if(np!==cp){err.textContent='Passwords do not match';return}
+  LS.set('lcr_admin_pw',np);
+  document.getElementById('chpw-modal').classList.remove('on');
+  document.getElementById('chpw-new').value='';
+  document.getElementById('chpw-conf').value='';
+  toast('Admin password updated ✓');
+  startApp();
+}
+
+function changeAdminPw(){
+  var np=document.getElementById('adm-newpw').value.trim();
+  var cp=document.getElementById('adm-confpw').value.trim();
+  if(!np){toast('Enter a new password');return}
+  if(np.length<6){toast('Password must be at least 6 characters');return}
+  if(np!==cp){toast('Passwords do not match');return}
+  LS.set('lcr_admin_pw',np);
+  document.getElementById('adm-newpw').value='';
+  document.getElementById('adm-confpw').value='';
+  toast('Admin password changed ✓');
+}
+
+document.getElementById('l-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
+document.getElementById('l-user').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('l-pass').focus()});
+
+function startApp(){
+  LS.set('lcr_session',currentUser);
+  document.getElementById('login-screen').classList.add('off');
+  var app=document.getElementById('app');
+  app.style.display='flex';app.style.flexDirection='column';
+  document.getElementById('tb-username').textContent=currentUser.name;
+  document.getElementById('tb-role').textContent=currentUser.role==='admin'?'Administrator':'Professional Hunter';
+  document.querySelectorAll('.admin-only').forEach(function(el){el.style.display=currentUser.role==='admin'?'flex':'none'});
+  document.getElementById('e-date').value=today();
+  if(currentUser.role==='ph'){
+    var phSel=document.getElementById('e-ph');
+    phSel.value=currentUser.phId;phSel.disabled=true;
+    filterPhId=currentUser.phId;
+    document.getElementById('hero-name').textContent=currentUser.name;
+    document.getElementById('ph-client-rates-card').style.display='block';
+  } else {
+    document.getElementById('hero-name').textContent='All PHs';
+    document.getElementById('ph-client-rates-card').style.display='none';
+  }
+  renderAll();
+}
+
+function doLogout(){
+  currentUser=null;LS.set('lcr_session',null);
+  document.getElementById('login-screen').classList.remove('off');
+  document.getElementById('app').style.display='none';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('l-err').textContent='';
+}
+
+// ── FIREBASE ──
+function loadFirebase(){
+  var s=document.createElement('script');
+  s.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
+  s.onload=function(){
+    var s2=document.createElement('script');
+    s2.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
+    s2.onload=function(){
+      try{
+        var app=firebase.initializeApp(FB_CFG,'limcroma');
+        fbDB=firebase.database(app);
+        usingFB=true;
+        setupListeners();
+      }catch(e){loadLocalData()}
+    };
+    document.head.appendChild(s2);
+  };
+  s.onerror=function(){loadLocalData()};
+  document.head.appendChild(s);
+}
+
+function setupListeners(){
+  fbDB.ref('species').on('value',function(snap){
+    var val=snap.val();
+    species=val?Object.entries(val).map(function(e){return Object.assign({id:e[0]},e[1])}):(species.length?species:[]);
+    renderAll();
+  });
+  fbDB.ref('phs').on('value',function(snap){
+    var val=snap.val();
+    phs=val?Object.entries(val).map(function(e){return Object.assign({id:e[0]},e[1])}):(phs||[]);
+    // Re-validate session after PH list loads
+    if(currentUser&&currentUser.role==='ph'){
+      var me=phs.find(function(p){return p.id===currentUser.phId});
+      if(me){currentUser.name=me.name}
+    }
+    renderAll();
+  });
+  fbDB.ref('clients').on('value',function(snap){
+    var val=snap.val();
+    clients=val?Object.entries(val).map(function(e){return Object.assign({id:e[0]},e[1])}):(clients||[]);
+    renderAll();
+  });
+  fbDB.ref('entries').on('value',function(snap){
+    var val=snap.val();
+    entries=val?Object.entries(val).map(function(e){return Object.assign({id:e[0]},e[1])}):(entries||[]);
+    renderAll();
+  });
+}
+
+function loadLocalData(){
+  species=LS.get('lcr_sp')||[];
+  phs=LS.get('lcr_ph')||[];
+  clients=LS.get('lcr_cl')||[];
+  entries=LS.get('lcr_en')||[];
+  renderAll();
+}
+function saveLocal(){LS.set('lcr_sp',species);LS.set('lcr_ph',phs);LS.set('lcr_cl',clients);LS.set('lcr_en',entries)}
+
+function renderAll(){
+  if(!currentUser)return;
+  populateSelects();renderToday();renderSummary();
+  renderSpecies();
+  if(currentUser.role==='admin')renderAdmin();
+  renderClientRateSelect();
+}
+
+function nav(name,btn){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on')});
+  document.getElementById('p-'+name).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── SPECIES PER PH ──
+function getMySpecies(){
+  if(!currentUser)return[];
+  if(currentUser.role==='admin')return species;
+  return species.filter(function(s){return s.phId===currentUser.phId});
+}
+
+function populateSelects(){
+  var eps=document.getElementById('e-ph');
+  var ev=eps.value;
+  eps.innerHTML='<option value="">— PH —</option>';
+  phs.forEach(function(p){eps.innerHTML+='<option value="'+p.id+'">'+p.name+'</option>'});
+  if(currentUser&&currentUser.role==='ph'){eps.value=currentUser.phId;eps.disabled=true}
+  else{eps.value=ev}
+
+  var ecl=document.getElementById('e-cl');
+  var clv=ecl.value;
+  ecl.innerHTML='<option value="">— Client —</option>';
+  var fc=currentUser&&currentUser.role==='ph'?clients.filter(function(c){return c.phId===currentUser.phId}):clients;
+  fc.forEach(function(c){ecl.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'});
+  ecl.value=clv;
+
+  var mysp=getMySpecies();
+  var esp=document.getElementById('e-sp');
+  var spv=esp.value;
+  esp.innerHTML='<option value="">— Species —</option>';
+  mysp.forEach(function(s){esp.innerHTML+='<option value="'+s.id+'">'+s.name+' — '+D(s.price)+'</option>'});
+  esp.value=spv;
+
+  var clph=document.getElementById('cl-ph');
+  if(clph){var cpv=clph.value;clph.innerHTML='<option value="">Select PH</option>';phs.forEach(function(p){clph.innerHTML+='<option value="'+p.id+'">'+p.name+'</option>'});clph.value=cpv}
+}
+
+function renderClientRateSelect(){
+  if(!currentUser||currentUser.role!=='ph')return;
+  var sel=document.getElementById('rate-cl');
+  if(!sel)return;
+  var myClients=clients.filter(function(c){return c.phId===currentUser.phId});
+  var v=sel.value;
+  sel.innerHTML='<option value="">— Select client —</option>';
+  myClients.forEach(function(c){sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'});
+  sel.value=v;
+}
+
+document.addEventListener('change',function(e){
+  if(e.target.id==='rate-cl'){
+    var cId=e.target.value;
+    var cl=clients.find(function(c){return c.id==cId});
+    if(cl){
+      document.getElementById('rate-days').value=cl.days||'';
+      document.getElementById('rate-rate').value=cl.rate||'';
+      updateRatePreview();
+    }
+  }
+  if(e.target.id==='rate-days'||e.target.id==='rate-rate')updateRatePreview();
+});
+
+function updateRatePreview(){
+  var days=parseFloat(document.getElementById('rate-days').value)||0;
+  var rate=parseFloat(document.getElementById('rate-rate').value)||0;
+  var box=document.getElementById('rate-preview');
+  if(days&&rate){box.style.display='flex';document.getElementById('rate-preview-v').textContent=D(days*rate)}
+  else box.style.display='none';
+}
+
+function saveClientRate(){
+  var cId=document.getElementById('rate-cl').value;
+  var days=parseFloat(document.getElementById('rate-days').value)||0;
+  var rate=parseFloat(document.getElementById('rate-rate').value)||0;
+  if(!cId){toast('Select a client first');return}
+  if(!days||!rate){toast('Enter days and rate');return}
+  if(usingFB&&fbDB){
+    fbDB.ref('clients/'+cId).update({days:days,rate:rate});
+  } else {
+    var cl=clients.find(function(c){return c.id==cId});
+    if(cl){cl.days=days;cl.rate=rate;saveLocal()}
+  }
+  toast('Daily rate saved ✓');
+  updateRatePreview();
+}
+
+// ── ENTRY ──
+document.getElementById('e-sp').addEventListener('change',function(){
+  var mysp=getMySpecies();
+  var sp=mysp.find(function(s){return s.id==document.getElementById('e-sp').value});
+  var qty=parseInt(document.getElementById('e-qty').value)||1;
+  var box=document.getElementById('afee');
+  if(sp){box.style.display='flex';document.getElementById('afee-v').textContent=D(sp.price*qty)}
+  else box.style.display='none';
+});
+document.getElementById('e-qty').addEventListener('input',function(){
+  var mysp=getMySpecies();
+  var sp=mysp.find(function(s){return s.id==document.getElementById('e-sp').value});
+  if(sp)document.getElementById('afee-v').textContent=D(sp.price*(parseInt(this.value)||1));
+});
+document.getElementById('e-date').addEventListener('change',renderToday);
+
+function saveEntry(){
+  var date=document.getElementById('e-date').value;
+  var phId=document.getElementById('e-ph').value;
+  var clId=document.getElementById('e-cl').value;
+  var spId=document.getElementById('e-sp').value;
+  var qty=parseInt(document.getElementById('e-qty').value)||1;
+  var notes=document.getElementById('e-notes').value.trim();
+  if(!date||!phId||!clId||!spId){toast('Fill in all fields');return}
+  var mysp=getMySpecies();
+  var sp=mysp.find(function(s){return s.id==spId});
+  var ph=phs.find(function(p){return p.id==phId});
+  var cl=clients.find(function(c){return c.id==clId});
+  var entry={date:date,phId:phId,phName:ph.name,clientId:clId,clientName:cl.name,spId:spId,spName:sp.name,qty:qty,price:sp.price,total:sp.price*qty,notes:notes,savedAt:new Date().toISOString()};
+  if(usingFB&&fbDB){fbDB.ref('entries').push(entry)}
+  else{entry.id='e'+Date.now();entries.push(entry);saveLocal();renderToday();renderSummary()}
+  document.getElementById('e-qty').value=1;
+  document.getElementById('e-notes').value='';
+  document.getElementById('e-sp').value='';
+  document.getElementById('afee').style.display='none';
+  toast('Entry saved ✓');
+}
+
+function renderToday(){
+  if(!currentUser)return;
+  var date=document.getElementById('e-date').value||today();
+  var te=entries.filter(function(e){return e.date===date&&(currentUser.role==='ph'?e.phId===currentUser.phId:true)});
+  var total=te.reduce(function(s,e){return s+e.total},0);
+  var count=te.reduce(function(s,e){return s+e.qty},0);
+  document.getElementById('t-count').textContent=count;
+  document.getElementById('t-fees').textContent=D(total)+' in trophy fees';
+  var el=document.getElementById('t-list');
+  if(!te.length){el.innerHTML='<div class="empty">No entries yet for this date</div>';return}
+  el.innerHTML=te.slice().reverse().map(function(e){
+    return'<div class="li"><div class="li-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3b6d11"><path d="M12 2C9.2 2 7 4.2 7 7c0 1.6.7 3 1.8 4L5 22h14l-3.8-11C16.3 10 17 8.6 17 7c0-2.8-2.2-5-5-5zm0 2c1.7 0 3 1.3 3 3S13.7 10 12 10 9 8.7 9 7s1.3-3 3-3z"/></svg></div>'
+    +'<div class="li-main"><div class="li-name">'+e.spName+' &times; '+e.qty+'</div>'
+    +'<div class="li-det">'+e.clientName+' &middot; PH: '+e.phName+(e.notes?' &middot; '+e.notes:'')+'</div></div>'
+    +'<div class="li-r"><div class="li-amt">'+D(e.total)+'</div><div class="li-dt">'+e.date+'</div></div></div>';
+  }).join('');
+}
+
+function getClientTotals(clientId){
+  var cl=clients.find(function(c){return c.id==clientId});
+  var ces=entries.filter(function(e){return e.clientId==clientId});
+  var trophyTotal=ces.reduce(function(s,e){return s+e.total},0);
+  var days=cl&&cl.days?parseFloat(cl.days):0;
+  var rate=cl&&cl.rate?parseFloat(cl.rate):0;
+  var dailyTotal=days*rate;
+  var grandTotal=trophyTotal+dailyTotal;
+  return{trophyTotal:trophyTotal,dailyTotal:dailyTotal,grandTotal:grandTotal,days:days,rate:rate};
+}
+
+function renderSummary(){
+  if(!currentUser)return;
+  var fe=currentUser.role==='ph'?entries.filter(function(e){return e.phId===currentUser.phId}):entries;
+  var de=filterPhId==='all'?fe:fe.filter(function(e){return e.phId===filterPhId});
+  var uCl=[...new Set(de.map(function(e){return e.clientId}))];
+  var uPh=[...new Set(fe.map(function(e){return e.phId}))];
+  var totalAnimals=de.reduce(function(s,e){return s+e.qty},0);
+  var totalTrophy=de.reduce(function(s,e){return s+e.total},0);
+  var totalDaily=uCl.reduce(function(s,cId){var t=getClientTotals(cId);return s+t.dailyTotal},0);
+  var grandTotal=totalTrophy+totalDaily;
+  document.getElementById('s-ani').textContent=totalAnimals;
+  document.getElementById('s-fee').textContent=D(totalTrophy);
+  document.getElementById('s-daily').textContent=D(totalDaily);
+  document.getElementById('s-grand').textContent=D(grandTotal);
+
+  var tabsEl=document.getElementById('ph-filter-tabs');
+  if(currentUser.role==='admin'&&uPh.length>0){
+    tabsEl.style.display='flex';
+    tabsEl.innerHTML='<button class="tf'+(filterPhId==='all'?' on':'')+'" onclick="setPhFilter(\'all\')">All PHs</button>'
+    +phs.filter(function(p){return uPh.indexOf(p.id)>=0}).map(function(p){
+      return'<button class="tf'+(filterPhId===p.id?' on':'')+'" onclick="setPhFilter(\''+p.id+'\')">'+p.name+'</button>';
+    }).join('');
+  } else tabsEl.style.display='none';
+
+  var el=document.getElementById('hun-sum');
+  if(!de.length){el.innerHTML='<div class="empty">No entries yet</div>';return}
+  var rows=uCl.map(function(cId){
+    var ces=de.filter(function(e){return e.clientId==cId});
+    var t=getClientTotals(cId);
+    var spp=[...new Set(ces.map(function(e){return e.spName}))];
+    return{clientId:cId,client:ces[0].clientName,ph:ces[0].phName,animals:ces.reduce(function(s,e){return s+e.qty},0),trophyTotal:t.trophyTotal,dailyTotal:t.dailyTotal,grandTotal:t.grandTotal,days:t.days,rate:t.rate,spp:spp};
+  }).sort(function(a,b){return b.grandTotal-a.grandTotal});
+
+  el.innerHTML=rows.map(function(r){
+    return'<div class="hr-row">'
+    +'<div class="hr-name">'+r.client+'</div>'
+    +'<div class="hr-ph">PH: '+r.ph+'</div>'
+    +'<div class="hr-stats">'
+    +'<div class="hs"><div class="hs-v">'+r.animals+'</div><div class="hs-l">Animals</div></div>'
+    +'<div class="hs"><div class="hs-v" style="font-size:12px">'+D(r.trophyTotal)+'</div><div class="hs-l">Trophy fees</div></div>'
+    +'<div class="hs"><div class="hs-v" style="font-size:12px">'+D(r.dailyTotal)+'</div><div class="hs-l">Daily fees</div></div>'
+    +'</div>'
+    +'<div class="hr-sp">'+r.spp.join(' &middot; ')+'</div>'
+    +'<div class="hr-total">'
+    +'<div class="hr-total-row"><span class="hr-total-lbl">Trophy fees</span><span class="hr-total-val">'+D(r.trophyTotal)+'</span></div>'
+    +(r.days?'<div class="hr-total-row"><span class="hr-total-lbl">'+r.days+' days &times; '+D(r.rate)+'/day</span><span class="hr-total-val">'+D(r.dailyTotal)+'</span></div>':'')
+    +'<div class="hr-total-row hr-grand-lbl"><span>Total owed</span><span class="hr-grand-val">'+D(r.grandTotal)+'</span></div>'
+    +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function setPhFilter(id){filterPhId=id;renderSummary()}
+
+function renderSpecies(){
+  if(!currentUser)return;
+  var mysp=getMySpecies();
+  var el=document.getElementById('sp-list');
+  if(!mysp.length){el.innerHTML='<div class="empty">No species yet — add your prices above</div>';return}
+  var cats=[...new Set(mysp.map(function(s){return s.cat}))];
+  el.innerHTML=cats.map(function(cat){
+    var items=mysp.filter(function(s){return s.cat===cat});
+    return'<div class="sp-sec">'+cat+'</div>'
+    +items.map(function(s){
+      return'<div class="sp-row"><div><div class="sp-n">'+s.name+'</div>'+(s.phId&&currentUser.role==='admin'?'<div style="font-size:11px;color:var(--text3)">'+getPHName(s.phId)+'</div>':'')+'</div>'
+      +'<div style="display:flex;align-items:center;gap:9px"><span class="sp-p">'+D(s.price)+'</span>'
+      +(canEditSpecies(s)?'<button class="sp-del" onclick="delSpecies(\''+s.id+'\')">×</button>':'')
+      +'</div></div>';
+    }).join('');
+  }).join('');
+}
+
+function canEditSpecies(s){
+  if(currentUser.role==='admin')return true;
+  return s.phId===currentUser.phId;
+}
+function getPHName(phId){var ph=phs.find(function(p){return p.id==phId});return ph?ph.name:''}
+
+function addSpecies(){
+  var n=document.getElementById('sp-n').value.trim();
+  var p=parseFloat(document.getElementById('sp-p').value);
+  var c=document.getElementById('sp-c').value;
+  if(!n||!p){toast('Enter species name and price');return}
+  var mysp=getMySpecies();
+  if(mysp.find(function(s){return s.name.toLowerCase()===n.toLowerCase()})){toast('Species already exists');return}
+  var phId=currentUser.role==='ph'?currentUser.phId:(currentUser.phId||null);
+  var sp={name:n,price:p,cat:c,phId:phId};
+  if(usingFB&&fbDB){fbDB.ref('species').push(sp)}
+  else{sp.id='sp'+Date.now();species.push(sp);saveLocal();populateSelects();renderSpecies()}
+  document.getElementById('sp-n').value='';document.getElementById('sp-p').value='';
+  toast('Species added');
+}
+function delSpecies(id){
+  if(entries.find(function(e){return e.spId==id})){toast('Cannot delete — has entries');return}
+  if(usingFB&&fbDB){fbDB.ref('species/'+id).set(null)}
+  else{species=species.filter(function(s){return s.id!=id});saveLocal();populateSelects();renderSpecies()}
+}
+
+// ── ADMIN ──
+function renderAdmin(){
+  var el=document.getElementById('ph-list');
+  if(!phs.length){el.innerHTML='<div class="empty">No PHs yet</div>';return}
+  el.innerHTML='<div style="padding:12px 15px">'+phs.map(function(p){
+    return'<div class="ph-card">'
+    +'<div class="ph-card-name">'+p.name
+    +'<div style="display:flex;gap:6px">'
+    +'<button class="ph-edit-btn" onclick="openEditUser(\''+p.id+'\')">Edit</button>'
+    +'<button class="sp-del" onclick="delPH(\''+p.id+'\')">×</button>'
+    +'</div></div>'
+    +'<div class="ph-card-det">'+(p.contact||'No contact')+'</div>'
+    +'<div class="ph-card-creds">'
+    +'<span class="ph-cred-badge">👤 '+p.username+'</span>'
+    +'<span class="ph-cred-badge">🔑 '+p.password+'</span>'
+    +'</div>'
+    +'</div>';
+  }).join('')+'</div>';
+
+  var clEl=document.getElementById('cl-list');
+  if(!clients.length){clEl.innerHTML='<div class="empty">No clients yet</div>';return}
+  clEl.innerHTML='<div style="padding:12px 15px">'+clients.map(function(c){
+    var ph=phs.find(function(p){return p.id==c.phId});
+    var days=c.days||0;var rate=c.rate||0;
+    return'<div class="cl-card">'
+    +'<div class="cl-card-name">'+c.name+'<button class="sp-del" onclick="delClient(\''+c.id+'\')">×</button></div>'
+    +'<div class="cl-card-det">PH: '+(ph?ph.name:'—')+' &middot; '+(c.country||'')+'</div>'
+    +'<div class="cl-card-pkg">'+days+' days &middot; '+D(rate)+'/day &middot; Daily total: '+D(days*rate)+'</div>'
+    +'</div>';
+  }).join('')+'</div>';
+}
+
+// Edit user modal
+function openEditUser(phId){
+  var ph=phs.find(function(p){return p.id==phId});
+  if(!ph)return;
+  editingPhId=phId;
+  document.getElementById('edit-user-title').textContent='Edit — '+ph.name;
+  document.getElementById('eu-name').value=ph.name||'';
+  document.getElementById('eu-un').value=ph.username||'';
+  document.getElementById('eu-pw').value=ph.password||'';
+  document.getElementById('eu-contact').value=ph.contact||'';
+  document.getElementById('eu-err').textContent='';
+  document.getElementById('edit-user-modal').classList.add('on');
+}
+function closeEditUser(){
+  document.getElementById('edit-user-modal').classList.remove('on');
+  editingPhId=null;
+}
+function saveEditUser(){
+  var name=document.getElementById('eu-name').value.trim();
+  var un=document.getElementById('eu-un').value.trim().toLowerCase();
+  var pw=document.getElementById('eu-pw').value.trim();
+  var contact=document.getElementById('eu-contact').value.trim();
+  var err=document.getElementById('eu-err');
+  err.textContent='';
+  if(!name||!un||!pw){err.textContent='Name, username and password are required';return}
+  // Check username uniqueness (excluding self)
+  var dup=phs.find(function(p){return p.id!=editingPhId&&p.username&&p.username.toLowerCase()===un});
+  if(dup){err.textContent='Username already taken by another PH';return}
+  if(usingFB&&fbDB){
+    fbDB.ref('phs/'+editingPhId).update({name:name,username:un,password:pw,contact:contact});
+  } else {
+    var ph=phs.find(function(p){return p.id==editingPhId});
+    if(ph){ph.name=name;ph.username=un;ph.password=pw;ph.contact=contact;saveLocal();renderAdmin()}
+  }
+  closeEditUser();
+  toast('User updated ✓');
+}
+
+function addPH(){
+  var n=document.getElementById('ph-n').value.trim();
+  var un=document.getElementById('ph-un').value.trim().toLowerCase();
+  var pw=document.getElementById('ph-pw').value.trim();
+  if(!n||!un||!pw){toast('Enter name, username and password');return}
+  if(phs.find(function(p){return p.username&&p.username.toLowerCase()===un})){toast('Username already taken');return}
+  var ph={name:n,username:un,password:pw,contact:document.getElementById('ph-c').value.trim()};
+  if(usingFB&&fbDB){fbDB.ref('phs').push(ph)}
+  else{ph.id='ph'+Date.now();phs.push(ph);saveLocal();populateSelects();renderAdmin()}
+  document.getElementById('ph-n').value='';document.getElementById('ph-un').value='';
+  document.getElementById('ph-pw').value='';document.getElementById('ph-c').value='';
+  toast('PH added — they can now log in');
+}
+function delPH(id){
+  if(entries.find(function(e){return e.phId==id})){toast('PH has entries – cannot remove');return}
+  if(!confirm('Remove this PH?'))return;
+  if(usingFB&&fbDB){fbDB.ref('phs/'+id).set(null)}
+  else{phs=phs.filter(function(p){return p.id!=id});saveLocal();populateSelects();renderAdmin()}
+}
+function addClient(){
+  var n=document.getElementById('cl-n').value.trim();
+  if(!n){toast('Enter a client name');return}
+  var days=parseFloat(document.getElementById('cl-days').value)||0;
+  var rate=parseFloat(document.getElementById('cl-rate').value)||0;
+  var cl={name:n,phId:document.getElementById('cl-ph').value,country:document.getElementById('cl-co').value.trim(),days:days,rate:rate};
+  if(usingFB&&fbDB){fbDB.ref('clients').push(cl)}
+  else{cl.id='cl'+Date.now();clients.push(cl);saveLocal();populateSelects();renderAdmin()}
+  document.getElementById('cl-n').value='';document.getElementById('cl-co').value='';
+  document.getElementById('cl-days').value='';document.getElementById('cl-rate').value='';
+  toast('Client added');
+}
+function delClient(id){
+  if(entries.find(function(e){return e.clientId==id})){toast('Client has entries – cannot remove');return}
+  if(usingFB&&fbDB){fbDB.ref('clients/'+id).set(null)}
+  else{clients=clients.filter(function(c){return c.id!=id});saveLocal();populateSelects();renderAdmin()}
+}
+
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('on')},2600);
+}
+
+window.addEventListener('load',function(){
+  loadFirebase();
+  var sess=LS.get('lcr_session');
+  setTimeout(function(){
+    document.getElementById('splash').classList.add('off');
+    if(sess&&sess.role){currentUser=sess;setTimeout(function(){startApp()},1200)}
+  },900);
+});
+</script>
+</body>
+</html>
