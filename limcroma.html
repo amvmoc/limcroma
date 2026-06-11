@@ -347,7 +347,79 @@ input:focus,select:focus{outline:none;border-color:var(--bush3);background:#fff}
       <div class="card">
         <div class="ch">Add species & price (USD $)</div>
         <div class="cb">
-          <div class="fg"><label class="fl">Species name</label><input type="text" id="sp-n" placeholder="e.g. Kudu"></div>
+          <div class="fg">
+            <label class="fl">Select animal from African game list</label>
+            <select id="sp-picker" onchange="onSpPickerChange()">
+              <option value="">— Pick an animal —</option>
+              <optgroup label="Antelope">
+                <option value="Blesbok|Antelope">Blesbok</option>
+                <option value="Bontebok|Antelope">Bontebok</option>
+                <option value="Bushbuck|Antelope">Bushbuck</option>
+                <option value="Common Duiker|Antelope">Common Duiker</option>
+                <option value="Eland|Antelope">Eland</option>
+                <option value="Gemsbok (Oryx)|Antelope">Gemsbok (Oryx)</option>
+                <option value="Grey Duiker|Antelope">Grey Duiker</option>
+                <option value="Grysbok|Antelope">Grysbok</option>
+                <option value="Hartebeest|Antelope">Hartebeest</option>
+                <option value="Impala|Antelope">Impala</option>
+                <option value="Klipspringer|Antelope">Klipspringer</option>
+                <option value="Kudu|Antelope">Kudu</option>
+                <option value="Mountain Reedbuck|Antelope">Mountain Reedbuck</option>
+                <option value="Nyala|Antelope">Nyala</option>
+                <option value="Oribi|Antelope">Oribi</option>
+                <option value="Red Hartebeest|Antelope">Red Hartebeest</option>
+                <option value="Reedbuck|Antelope">Reedbuck</option>
+                <option value="Roan Antelope|Antelope">Roan Antelope</option>
+                <option value="Sable Antelope|Antelope">Sable Antelope</option>
+                <option value="Sitatunga|Antelope">Sitatunga</option>
+                <option value="Springbok|Antelope">Springbok</option>
+                <option value="Steenbok|Antelope">Steenbok</option>
+                <option value="Tsessebe|Antelope">Tsessebe</option>
+                <option value="Waterbuck|Antelope">Waterbuck</option>
+                <option value="Wildebeest (Blue)|Antelope">Wildebeest (Blue)</option>
+                <option value="Wildebeest (Black)|Antelope">Wildebeest (Black)</option>
+              </optgroup>
+              <optgroup label="Big Game">
+                <option value="African Buffalo|Big game">African Buffalo</option>
+                <option value="African Elephant|Big game">African Elephant</option>
+                <option value="Black Rhinoceros|Big game">Black Rhinoceros</option>
+                <option value="Giraffe|Big game">Giraffe</option>
+                <option value="Hippopotamus|Big game">Hippopotamus</option>
+                <option value="Plains Zebra|Big game">Plains Zebra</option>
+                <option value="Mountain Zebra|Big game">Mountain Zebra</option>
+                <option value="White Rhinoceros|Big game">White Rhinoceros</option>
+                <option value="Warthog|Big game">Warthog</option>
+                <option value="Bushpig|Big game">Bushpig</option>
+              </optgroup>
+              <optgroup label="Predator">
+                <option value="African Lion|Predator">African Lion</option>
+                <option value="African Leopard|Predator">African Leopard</option>
+                <option value="Cheetah|Predator">Cheetah</option>
+                <option value="African Wild Dog|Predator">African Wild Dog</option>
+                <option value="Black-Backed Jackal|Predator">Black-Backed Jackal</option>
+                <option value="Brown Hyena|Predator">Brown Hyena</option>
+                <option value="Caracal|Predator">Caracal</option>
+                <option value="Crocodile|Predator">Crocodile</option>
+                <option value="Serval|Predator">Serval</option>
+                <option value="Spotted Hyena|Predator">Spotted Hyena</option>
+              </optgroup>
+              <optgroup label="Bird">
+                <option value="Egyptian Goose|Bird">Egyptian Goose</option>
+                <option value="Francolin|Bird">Francolin</option>
+                <option value="Guineafowl|Bird">Guineafowl</option>
+                <option value="Hadeda Ibis|Bird">Hadeda Ibis</option>
+                <option value="Ostrich|Bird">Ostrich</option>
+                <option value="Spur-winged Goose|Bird">Spur-winged Goose</option>
+                <option value="Yellow-billed Duck|Bird">Yellow-billed Duck</option>
+              </optgroup>
+              <option value="__custom__|Other">➕ Not in list — enter manually</option>
+            </select>
+          </div>
+          <div class="fg" id="sp-custom-fg" style="display:none">
+            <label class="fl">Animal name (custom)</label>
+            <input type="text" id="sp-n" placeholder="e.g. My custom species">
+          </div>
+          <input type="hidden" id="sp-n-hidden">
           <div class="fr2">
             <div class="fg"><label class="fl">Price (USD $)</label><input type="number" id="sp-p" placeholder="0"></div>
             <div class="fg"><label class="fl">Category</label>
@@ -356,7 +428,7 @@ input:focus,select:focus{outline:none;border-color:var(--bush3);background:#fff}
           </div>
           <button class="btn btn-p" onclick="addSpecies()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add species
+            Add to my list
           </button>
         </div>
       </div>
@@ -927,19 +999,54 @@ function canEditSpecies(s){
 }
 function getPHName(phId){var ph=phs.find(function(p){return p.id==phId});return ph?ph.name:''}
 
+function onSpPickerChange(){
+  var picker=document.getElementById('sp-picker');
+  var val=picker.value;
+  if(!val)return;
+  if(val==='__custom__|Other'){
+    document.getElementById('sp-custom-fg').style.display='block';
+    document.getElementById('sp-n').value='';
+    document.getElementById('sp-n').focus();
+    document.getElementById('sp-c').value='Other';
+  } else {
+    var parts=val.split('|');
+    var name=parts[0];
+    var cat=parts[1]||'Other';
+    document.getElementById('sp-custom-fg').style.display='none';
+    document.getElementById('sp-n').value=name;
+    // Set category to match
+    var catSel=document.getElementById('sp-c');
+    for(var i=0;i<catSel.options.length;i++){
+      if(catSel.options[i].value===cat){catSel.value=cat;break}
+    }
+    // Focus price field
+    document.getElementById('sp-p').focus();
+    document.getElementById('sp-p').select();
+  }
+}
+
 function addSpecies(){
-  var n=document.getElementById('sp-n').value.trim();
+  var picker=document.getElementById('sp-picker');
+  var isCustom=picker.value==='__custom__|Other';
+  var n=isCustom
+    ?document.getElementById('sp-n').value.trim()
+    :(picker.value?picker.value.split('|')[0]:'');
   var p=parseFloat(document.getElementById('sp-p').value);
   var c=document.getElementById('sp-c').value;
-  if(!n||!p){toast('Enter species name and price');return}
+  if(!n){toast('Select or enter an animal name');return}
+  if(!p){toast('Enter a price (USD $)');return}
   var mysp=getMySpecies();
-  if(mysp.find(function(s){return s.name.toLowerCase()===n.toLowerCase()})){toast('Species already exists');return}
+  if(mysp.find(function(s){return s.name.toLowerCase()===n.toLowerCase()})){toast('Already in your list');return}
   var phId=currentUser.role==='ph'?currentUser.phId:(currentUser.phId||null);
   var sp={name:n,price:p,cat:c,phId:phId};
   if(usingFB&&fbDB){fbDB.ref('species').push(sp)}
   else{sp.id='sp'+Date.now();species.push(sp);saveLocal();populateSelects();renderSpecies()}
-  document.getElementById('sp-n').value='';document.getElementById('sp-p').value='';
-  toast('Species added');
+  // Reset form
+  picker.value='';
+  document.getElementById('sp-n').value='';
+  document.getElementById('sp-p').value='';
+  document.getElementById('sp-custom-fg').style.display='none';
+  toast(n+' added to your list ✓');
 }
 function delSpecies(id){
   if(entries.find(function(e){return e.spId==id})){toast('Cannot delete — has entries');return}
